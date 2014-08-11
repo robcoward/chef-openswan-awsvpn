@@ -1,0 +1,15 @@
+{
+    "id": "example",
+    "Quagga_Password": "Secret",
+	"Customer_ASN": "65000",
+	"Customer_PublicIP": "10.0.2.15",
+	"AWS_ASN": "1234",
+	"vgw_tunnel1_outside": "1.2.3.4",
+	"vgw_tunnel1_inside": "169.254.254.105",
+	"cgw_tunnel1_inside": "169.254.254.106",
+	"tunnel1_secret": "VerySecretKey",
+	"vgw_tunnel2_outside": "5.6.7.8",
+	"vgw_tunnel2_inside": "169.254.254.109",
+	"cgw_tunnel2_inside": "169.254.254.110",
+	"tunnel2_secret": "AnotherVerySecretKey"
+}

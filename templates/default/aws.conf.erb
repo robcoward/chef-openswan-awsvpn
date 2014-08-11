@@ -1,0 +1,45 @@
+conn awstunnel1
+        authby=secret
+        auto=start
+        left=<%= @NAMESPACE_TUNNEL1_IP %>
+        leftid=<%= @NAMESPACE_TUNNEL1_IP %>
+        right=<%= @VGW_TUNNEL1_OUTSIDE_IP %>
+        rightid=<%= @VGW_TUNNEL1_OUTSIDE_IP %>
+        type=tunnel
+        ikelifetime=8h
+        keylife=1h
+        phase2alg=aes128-sha1;modp1024
+        ike=aes128-sha1
+        auth=esp
+        keyingtries=%forever
+        aggrmode=no
+        keyexchange=ike
+        ikev2=never
+        leftsubnet=<%= @VGW_TUNNEL1_INSIDE_IP %>/30
+        rightsubnet=0.0.0.0/0
+        dpddelay=10
+        dpdtimeout=30
+        dpdaction=restart_by_peer
+
+conn awstunnel2
+        authby=secret
+        auto=start
+        left=<%= @NAMESPACE_TUNNEL2_IP %>
+        leftid=<%= @NAMESPACE_TUNNEL2_IP %>
+        right=<%= @VGW_TUNNEL2_OUTSIDE_IP %>
+        rightid=<%= @VGW_TUNNEL2_OUTSIDE_IP %>
+        type=tunnel
+        ikelifetime=8h
+        keylife=1h
+        phase2alg=aes128-sha1;modp1024
+        ike=aes128-sha1
+        auth=esp
+        keyingtries=%forever
+        aggrmode=no
+        keyexchange=ike
+        ikev2=never
+        leftsubnet=<%= @VGW_TUNNEL2_INSIDE_IP %>/30
+        rightsubnet=0.0.0.0/0
+        dpddelay=10
+        dpdtimeout=30
+        dpdaction=restart_by_peer
