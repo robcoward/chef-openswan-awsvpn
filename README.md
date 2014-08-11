@@ -1,9 +1,8 @@
-nvm_openswan_vpn Cookbook
+openswan-awsvpn Cookbook
 =========================
-TODO: Enter the cookbook description here.
+This cookbook configures OpenSwan and Quagga as a Customer Gateway for an Amazon VPC.
 
-e.g.
-This cookbook makes your favorite breakfast sandwhich.
+Original script adapted from https://github.com/patrickbcullen/Openswan-VPC
 
 Requirements
 ------------
@@ -11,14 +10,14 @@ TODO: List your cookbook requirements. Be sure to include any requirements this 
 
 e.g.
 #### packages
-- `toaster` - nvm_openswan_vpn needs toaster to brown your bagel.
+- `toaster` - openswan-awsvpn needs toaster to brown your bagel.
 
 Attributes
 ----------
 TODO: List you cookbook attributes here.
 
 e.g.
-#### nvm_openswan_vpn::default
+#### openswan-awsvpn::default
 <table>
   <tr>
     <th>Key</th>
@@ -27,7 +26,7 @@ e.g.
     <th>Default</th>
   </tr>
   <tr>
-    <td><tt>['nvm_openswan_vpn']['bacon']</tt></td>
+    <td><tt>['openswan-awsvpn']['bacon']</tt></td>
     <td>Boolean</td>
     <td>whether to include bacon</td>
     <td><tt>true</tt></td>
@@ -36,17 +35,17 @@ e.g.
 
 Usage
 -----
-#### nvm_openswan_vpn::default
+#### openswan-awsvpn::default
 TODO: Write usage instructions for each cookbook.
 
 e.g.
-Just include `nvm_openswan_vpn` in your node's `run_list`:
+Just include `openswan-awsvpn` in your node's `run_list`:
 
 ```json
 {
   "name":"my_node",
   "run_list": [
-    "recipe[nvm_openswan_vpn]"
+    "recipe[openswan-awsvpn]"
   ]
 }
 ```
@@ -65,4 +64,4 @@ e.g.
 
 License and Authors
 -------------------
-Authors: TODO: List authors
+Authors: Rob Coward
