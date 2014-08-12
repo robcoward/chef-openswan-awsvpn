@@ -2,7 +2,7 @@ hostname <%= @hostname %>
 password <%= @password %>
 enable password <%= @password %>
 !
-log file /var/log/quagga/bgpd.log
+log file /var/log/quagga/aws-bgpd.log
 debug bgp events
 debug bgp zebra
 debug bgp updates
@@ -11,6 +11,10 @@ router bgp <%= @CUSTOMER_ASN %>
     bgp router-id <%= @public_ip %>
     network <%= @CGW_TUNNEL1_INSIDE_IP %>/30
     network <%= @CGW_TUNNEL2_INSIDE_IP %>/30
+<% @networks.each do |network| %>
+    network <%= network %>
+<% end =%>
     neighbor <%= @VGW_TUNNEL1_INSIDE_IP %> remote-as <%= @AWS_ASN %>
     neighbor <%= @VGW_TUNNEL2_INSIDE_IP %> remote-as <%= @AWS_ASN %>
+    neighbor <%= node['ipaddress'] %> remote-as <%= @internal_asn %>
 line vty

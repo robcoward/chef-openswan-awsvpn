@@ -24,3 +24,6 @@ default['Aws_Vpn']['Namespace_Tunnel2'] = "169.254.255.3"
 default['Aws_Vpn']['data_bag'] = "AWS_CGW"
 
 default['Aws_Vpn']['RDO_Url'] = "http://rdo.fedorapeople.org/rdo-release.rpm"
+default['Aws_Vpn']['Quagga_directory'] = "/etc/quagga/awscgw"
+
+default['Aws_Vpn']['Network_List'] = [ ]

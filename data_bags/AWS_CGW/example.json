@@ -1,6 +1,7 @@
 {
     "id": "example",
     "Quagga_Password": "Secret",
+    "internal_asn": "65001",
 	"Customer_ASN": "65000",
 	"Customer_PublicIP": "10.0.2.15",
 	"AWS_ASN": "1234",

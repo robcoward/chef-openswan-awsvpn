@@ -126,7 +126,27 @@ cookbook_file "/etc/init.d/aws_customer_gateway" do
 	notifies :restart, "service[aws_customer_gateway]", :delayed
 end
 
-template "/etc/quagga/bgpd.conf" do
+# Build a list of networks that BGP will advirtise
+network_list = [ ]
+node['network']['interfaces']['eth0']['routes'].each do |route|
+	if route.attribute?('proto') and route['family'] == "inet" and route['destination'] != "default"
+		network_list << route['destination']
+	end
+end
+node['Aws_Vpn']['Network_List'].each do |route|
+	network_list << route
+end
+
+directory node['Aws_Vpn']['Quagga_directory'] do
+	owner "root"
+	group "root"
+	mode "0755"
+	recursive true
+	action :create
+end
+
+
+template File.join(node['Aws_Vpn']['Quagga_directory'], "bgpd.conf") do
 	source "bgpd.conf.erb"
 	owner "root"
 	group "root"
@@ -135,17 +155,19 @@ template "/etc/quagga/bgpd.conf" do
 		:hostname               => node['fqdn'],
 		:public_ip              => public_ip,
 		:password               => vpn['Quagga_Password'],
+		:internal_asn           => vpn['internal_asn'],
 		:CUSTOMER_ASN           => vpn['Customer_ASN'],
 		:AWS_ASN                => vpn['AWS_ASN'],
 		:CGW_TUNNEL1_INSIDE_IP  => vpn['cgw_tunnel1_inside'],
 		:CGW_TUNNEL2_INSIDE_IP  => vpn['cgw_tunnel2_inside'],
 		:VGW_TUNNEL1_INSIDE_IP  => vpn['vgw_tunnel1_inside'],
-		:VGW_TUNNEL2_INSIDE_IP  => vpn['vgw_tunnel2_inside']
+		:VGW_TUNNEL2_INSIDE_IP  => vpn['vgw_tunnel2_inside'],
+		:networks               => network_list
 	)
 	notifies :restart, "service[aws_customer_gateway]", :delayed
 end
 
-template "/etc/quagga/zebra.conf" do
+template File.join(node['Aws_Vpn']['Quagga_directory'], "zebra.conf") do
 	source "zebra.conf.erb"
 	owner "root"
 	group "root"

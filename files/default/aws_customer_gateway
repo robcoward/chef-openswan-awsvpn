@@ -26,6 +26,15 @@
 # Description:       Start VPN Customer Gateway at boot time
 ### END INIT INFO
 
+# source function library
+. /etc/rc.d/init.d/functions
+
+# Get network config
+. /etc/sysconfig/network
+
+# quagga command line options
+. /etc/sysconfig/quagga
+
 prog=$(basename $0)
 # if DEBUG is set (to anything but '0') send a copy of the output to /dev/tty so the caller
 # can see the messages without checking the system logs
@@ -44,7 +53,7 @@ fi
 
 RETVAL=0
 
-. /etc/sysconfig/aws_gateway
+. /etc/sysconfig/aws_customer_gateway
 ox='ip netns exec openswan'
 
 setup_network() {
@@ -96,8 +105,10 @@ teardown_network() {
 
 start_control_plane() {
   $ox /etc/init.d/ipsec restart
-  $ox /etc/init.d/zebra restart
-  $ox /etc/init.d/bgpd restart
+  #$ox /etc/init.d/zebra restart
+  $ox zebra -d -A 127.0.0.1 -f /etc/quagga/awscgw/zebra.conf
+  #$ox /etc/init.d/bgpd restart
+  $ox bgpd -d -A 127.0.0.1 -f /etc/quagga/awscgw/bgpd.conf
 }
 
 stop_control_plane() {
