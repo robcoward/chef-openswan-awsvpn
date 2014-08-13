@@ -9,3 +9,4 @@ version '0.1.0'
 depends 'iptables'
 depends 'sysctl', ">= 0.6.0"
 depends 'chef-sugar'
+depends 'ohai'

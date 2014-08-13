@@ -23,3 +23,8 @@ suites:
   attributes: {}
   excludes:
     - ubuntu-12.04
+  driver_config:
+    network:
+    - ["private_network", {ip: "172.16.1.11"}]
+    - ["forwarded_port", {guest: 179, host: 179, auto_correct: false}]
+    - ["forwarded_port", {guest: 500, host: 500, protocol: udp, auto_correct: false}]

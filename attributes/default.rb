@@ -27,3 +27,5 @@ default['Aws_Vpn']['RDO_Url'] = "http://rdo.fedorapeople.org/rdo-release.rpm"
 default['Aws_Vpn']['Quagga_directory'] = "/etc/quagga/awscgw"
 
 default['Aws_Vpn']['Network_List'] = [ ]
+
+default['ohai']['plugins']['openswan-awsvpn'] = 'plugins'

@@ -18,18 +18,20 @@
 #
 
 include_recipe "chef-sugar::default"
+include_recipe 'ohai'
 
 # Work out our public_ipv4 address and use it to lookup Customer Gateway config in the databags
 if cloud?
 	public_ip = node['Cloud']['public_ipv4']
 else
-	public_ip = node['ipaddress']
+	public_ip = node['public_ip']
 end
 
 begin
 	vpn = search( node['Aws_Vpn']['data_bag'], "Customer_PublicIP:#{public_ip}").first
-rescue
-	raise "Unable to load Customer Gateway details for #{public_ip}"
+	raise "Databag not found" if vpn.nil?
+rescue => e
+	raise "Unable to load Customer Gateway details for #{public_ip} [#{e.message}]"
 end
 
 log "Configuring AWS Customer Gateway for #{vpn['id']}" do
@@ -45,11 +47,12 @@ when "rhel"
 
 end
 
-%w{iproute openswan quagga}.each do |pkg|
+%w{openswan quagga}.each do |pkg|
   package pkg do
-    action :upgrade
+    action :install
   end
 end
+
 
 node.default['sysctl']['allow_sysctl_conf'] = true
 node.default['sysctl']['params']['net']['ipv4']['ip_forward'] = 1

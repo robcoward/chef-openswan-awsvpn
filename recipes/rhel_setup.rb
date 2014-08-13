@@ -40,3 +40,15 @@ end
     block { Chef::Provider::Package::Yum::YumCache.instance.reload }
     action :nothing
   end
+
+%w{iproute kernel}.each do |pkg|
+  package pkg do
+    action :upgrade
+    notifies :run, "execute[Reboot Post Kernel Update]", :delayed
+  end
+end
+
+execute "Reboot Post Kernel Update" do
+  command "shutdown -r now"
+  action :nothing
+end
