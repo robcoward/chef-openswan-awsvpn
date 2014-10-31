@@ -64,29 +64,29 @@ setup_network() {
   ip link add type veth
   ip link set dev veth1 netns openswan
   ip link set dev veth0 name toopenswan
-  ip addr add dev toopenswan $GATEWAY_IP/28
+  ip addr add dev toopenswan <%= @GATEWAY_IP %>/28
   $ox ip link set dev veth1 name eth0
-  $ox ip addr add dev eth0 $NAMESPACE_TUNNEL1_IP/28
-  $ox ip addr add dev eth0 $NAMESPACE_TUNNEL2_IP/28
-  $ox ip addr add dev eth0 $CGW_TUNNEL1_INSIDE_IP/30
-  $ox ip addr add dev eth0 $CGW_TUNNEL2_INSIDE_IP/30
+  $ox ip addr add dev eth0 <%= @NAMESPACE_TUNNEL1_IP %>/28
+  $ox ip addr add dev eth0 <%= @NAMESPACE_TUNNEL2_IP %>/28
+  $ox ip addr add dev eth0 <%= @CGW_TUNNEL1_INSIDE_IP %>/30
+  $ox ip addr add dev eth0 <%= @CGW_TUNNEL2_INSIDE_IP %>/30
   ip link set toopenswan up
   $ox ip link set eth0 up
   $ox ip link set lo up
 
   #Configure routing
-  iptables -t nat -D PREROUTING -s $VGW_TUNNEL1_OUTSIDE_IP/32 -i eth0 -j DNAT --to-destination $NAMESPACE_TUNNEL1_IP
-  iptables -t nat -A PREROUTING -s $VGW_TUNNEL1_OUTSIDE_IP/32 -i eth0 -j DNAT --to-destination $NAMESPACE_TUNNEL1_IP
-  iptables -t nat -D POSTROUTING -d $VGW_TUNNEL1_OUTSIDE_IP/32 -j SNAT --to-source $INSTANCE_IP
-  iptables -t nat -A POSTROUTING -d $VGW_TUNNEL1_OUTSIDE_IP/32 -j SNAT --to-source $INSTANCE_IP
+  iptables -t nat -D PREROUTING -s <%= @VGW_TUNNEL1_OUTSIDE_IP %>/32 -i eth0 -j DNAT --to-destination <%= @NAMESPACE_TUNNEL1_IP %>
+  iptables -t nat -A PREROUTING -s <%= @VGW_TUNNEL1_OUTSIDE_IP %>/32 -i eth0 -j DNAT --to-destination <%= @NAMESPACE_TUNNEL1_IP %>
+  iptables -t nat -D POSTROUTING -d <%= @VGW_TUNNEL1_OUTSIDE_IP %>/32 -j SNAT --to-source <%= @INSTANCE_IP %>
+  iptables -t nat -A POSTROUTING -d <%= @VGW_TUNNEL1_OUTSIDE_IP %>/32 -j SNAT --to-source <%= @INSTANCE_IP %>
 
-  iptables -t nat -D PREROUTING -s $VGW_TUNNEL2_OUTSIDE_IP/32 -i eth0 -j DNAT --to-destination $NAMESPACE_TUNNEL2_IP
-  iptables -t nat -A PREROUTING -s $VGW_TUNNEL2_OUTSIDE_IP/32 -i eth0 -j DNAT --to-destination $NAMESPACE_TUNNEL2_IP
-  iptables -t nat -D POSTROUTING -d $VGW_TUNNEL2_OUTSIDE_IP/32 -j SNAT --to-source $INSTANCE_IP
-  iptables -t nat -A POSTROUTING -d $VGW_TUNNEL2_OUTSIDE_IP/32 -j SNAT --to-source $INSTANCE_IP
+  iptables -t nat -D PREROUTING -s <%= @VGW_TUNNEL2_OUTSIDE_IP %>/32 -i eth0 -j DNAT --to-destination <%= @NAMESPACE_TUNNEL2_IP %>
+  iptables -t nat -A PREROUTING -s <%= @VGW_TUNNEL2_OUTSIDE_IP %>/32 -i eth0 -j DNAT --to-destination <%= @NAMESPACE_TUNNEL2_IP %>
+  iptables -t nat -D POSTROUTING -d <%= @VGW_TUNNEL2_OUTSIDE_IP %>/32 -j SNAT --to-source <%= @INSTANCE_IP %>
+  iptables -t nat -A POSTROUTING -d <%= @VGW_TUNNEL2_OUTSIDE_IP %>/32 -j SNAT --to-source <%= @INSTANCE_IP %>
 
-  $ox ip r add default via $GATEWAY_IP
-  sysctl -w net.ipv4.conf.all.forwarding=1
+  $ox ip r add default via <%= @GATEWAY_IP %>
+  #$ox sysctl -w net.ipv4.conf.all.forwarding=1
 }
 
 teardown_network() {
@@ -95,26 +95,27 @@ teardown_network() {
   ip link delete veth1 type veth
   ip netns delete openswan
 
-  iptables -t nat -D PREROUTING -s $VGW_TUNNEL1_OUTSIDE_IP/32 -i eth0 -j DNAT --to-destination $NAMESPACE_TUNNEL1_IP
-  iptables -t nat -D POSTROUTING -d $VGW_TUNNEL1_OUTSIDE_IP/32 -j SNAT --to-source $INSTANCE_IP
-  iptables -t nat -D PREROUTING -s $VGW_TUNNEL2_OUTSIDE_IP/32 -i eth0 -j DNAT --to-destination $NAMESPACE_TUNNEL2_IP
-  iptables -t nat -D POSTROUTING -d $VGW_TUNNEL2_OUTSIDE_IP/32 -j SNAT --to-source $INSTANCE_IP
+  iptables -t nat -D PREROUTING -s <%= @VGW_TUNNEL1_OUTSIDE_IP %>/32 -i eth0 -j DNAT --to-destination <%= @NAMESPACE_TUNNEL1_IP %>
+  iptables -t nat -D POSTROUTING -d <%= @VGW_TUNNEL1_OUTSIDE_IP %>/32 -j SNAT --to-source <%= @INSTANCE_IP %>
+  iptables -t nat -D PREROUTING -s <%= @VGW_TUNNEL2_OUTSIDE_IP %>/32 -i eth0 -j DNAT --to-destination <%= @NAMESPACE_TUNNEL2_IP %>
+  iptables -t nat -D POSTROUTING -d <%= @VGW_TUNNEL2_OUTSIDE_IP %>/32 -j SNAT --to-source <%= @INSTANCE_IP %>
 
-  sysctl -w net.ipv4.conf.all.forwarding=0
+  #$ox sysctl -w net.ipv4.conf.all.forwarding=0
 }
 
 start_control_plane() {
-  $ox /etc/init.d/ipsec restart
-  #$ox /etc/init.d/zebra restart
-  $ox zebra -d -A 127.0.0.1 -f /etc/quagga/awscgw/zebra.conf
-  #$ox /etc/init.d/bgpd restart
-  $ox bgpd -d -A 127.0.0.1 -f /etc/quagga/awscgw/bgpd.conf
+  IPSEC_CONFS=<%= @AWSVPN_CHROOT %>/etc $ox /etc/init.d/ipsec restart
+  $ox ip route flush proto zebra
+  $ox /usr/sbin/chroot <%= @AWSVPN_CHROOT %> /etc/init.d/zebra start
+  $ox /usr/sbin/chroot <%= @AWSVPN_CHROOT %> /etc/init.d/bgpd start
+  $ox /usr/sbin/chroot <%= @AWSVPN_CHROOT %> /etc/init.d/ripd start
 }
 
 stop_control_plane() {
-  $ox /etc/init.d/bgpd stop
-  $ox /etc/init.d/zebra stop
-  $ox /etc/init.d/ipsec stop
+  $ox /usr/sbin/chroot <%= @AWSVPN_CHROOT %> /etc/init.d/zebra stop
+  $ox /usr/sbin/chroot <%= @AWSVPN_CHROOT %> /etc/init.d/bgpd stop
+  $ox /usr/sbin/chroot <%= @AWSVPN_CHROOT %> /etc/init.d/ripd stop
+  IPSEC_CONFS=<%= @AWSVPN_CHROOT %>/etc $ox /etc/init.d/ipsec stop
 }
 
 

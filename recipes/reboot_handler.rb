@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: openswan-awsvpn
-# Recipe:: iptables
+# Recipe:: reboot_handler
 #
 # Copyright 2014, Rob Coward
 #
@@ -17,4 +17,15 @@
 # limitations under the License.
 #
 
-iptables_rule "port_openswan"
+remote_directory node['chef_handler']['handler_path'] do
+  source 'handlers'
+  recursive true
+  action :create
+end
+
+chef_handler 'RebootHandler' do
+  source "#{node['chef_handler']['handler_path']}/reboot_handler.rb"
+  arguments node['Aws_Vpn']['allow_pending_reboots']
+  supports :report => true, :exception => false
+  action :enable
+end

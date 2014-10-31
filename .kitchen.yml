@@ -20,7 +20,8 @@ platforms:
 suites:
 - name: OpenSwan
   run_list: ["recipe[openswan-awsvpn::default]"]
-  attributes: {}
+  attributes: { Aws_Vpn : { #data_bag_item : 'ec2test', 
+                            Local_Networks : ['10.101.0.0/16']} }
   excludes:
     - ubuntu-12.04
   driver_config:

@@ -4,20 +4,18 @@ enable password <%= @password %>
 !
 log <%= @logfile %>
 <% if @debug %>
-debug bgp events
-debug bgp zebra
-debug bgp updates
+debug rip events
+debug rip packet
 <% end =%>
 !
-router bgp <%= @my_asn %>
-    bgp router-id <%= @my_ip %>
+router rip
 <% @networks.each do |network| %>
     network <%= network %>
 <% end =%>
-<% @neighbors.each do |neighbor| %>
-    neighbor <%= neighbor %>
-<% end  =%>
 <% @redistribute_list.each do |protocol| %>
     redistribute <%= protocol %>
 <% end  =%>
+<% @routes.each do |route| %>
+    route <%= route %>
+<% end =%>
 line vty

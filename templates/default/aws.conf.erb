@@ -15,7 +15,7 @@ conn awstunnel1
         aggrmode=no
         keyexchange=ike
         ikev2=never
-        leftsubnet=<%= @VGW_TUNNEL1_INSIDE_IP %>/30
+        leftsubnets={ <%= @VGW_TUNNEL1_INSIDE_IP %>/30 <% @LOCAL_NETWORKS.each do |network| %><%= network %> <% end =%> }
         rightsubnet=0.0.0.0/0
         dpddelay=10
         dpdtimeout=30
@@ -38,7 +38,7 @@ conn awstunnel2
         aggrmode=no
         keyexchange=ike
         ikev2=never
-        leftsubnet=<%= @VGW_TUNNEL2_INSIDE_IP %>/30
+        leftsubnets={ <%= @VGW_TUNNEL2_INSIDE_IP %>/30 <% @LOCAL_NETWORKS.each do |network| %><%= network %> <% end =%> }
         rightsubnet=0.0.0.0/0
         dpddelay=10
         dpdtimeout=30

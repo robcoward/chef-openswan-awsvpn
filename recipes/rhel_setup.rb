@@ -17,38 +17,54 @@
 # limitations under the License.
 #
 
+include_recipe "openswan-awsvpn::reboot_handler"
+
 # Setup RDO repository to install netns compatible iproute rpm
-remote_file File.join(Chef::Config[:file_cache_path], "rdo-release.rpm") do
-  source node['Aws_Vpn']['RDO_Url']
-  action :create_if_missing
+# remote_file File.join(Chef::Config[:file_cache_path], "rdo-release.rpm") do
+#   source node['Aws_Vpn']['RDO_Url']
+#   action :create_if_missing
+# end
+
+# package "rdo-release" do
+# 	action :install
+# 	source File.join(Chef::Config[:file_cache_path], "rdo-release.rpm")
+#     notifies :run, "execute[yum-makecache-rdo-release]", :immediately
+#     notifies :create, "ruby_block[yum-cache-reload-rdo-release]", :immediately
+# end
+
+#   execute "yum-makecache-rdo-release" do
+#     command "yum -q makecache --disablerepo=* --enablerepo=OpenStack*"
+#     action :nothing
+#   end
+
+#   # reload internal Chef yum cache
+#   ruby_block "yum-cache-reload-rdo-release" do
+#     block { Chef::Provider::Package::Yum::YumCache.instance.reload }
+#     action :nothing
+#   end
+
+yum_repository "openstack-icehouse" do
+  description "OpenStack Icehouse Repository"
+  baseurl "http://repos.fedorapeople.org/repos/openstack/openstack-icehouse/epel-6/"
+  gpgcheck false
+  action :create
 end
-
-package "rdo-release" do
-	action :install
-	source File.join(Chef::Config[:file_cache_path], "rdo-release.rpm")
-    notifies :run, "execute[yum-makecache-rdo-release]", :immediately
-    notifies :create, "ruby_block[yum-cache-reload-rdo-release]", :immediately
-end
-
-  execute "yum-makecache-rdo-release" do
-    command "yum -q makecache --disablerepo=* --enablerepo=OpenStack*"
-    action :nothing
-  end
-
-  # reload internal Chef yum cache
-  ruby_block "yum-cache-reload-rdo-release" do
-    block { Chef::Provider::Package::Yum::YumCache.instance.reload }
-    action :nothing
-  end
 
 %w{iproute kernel}.each do |pkg|
   package pkg do
     action :upgrade
-    notifies :run, "execute[Reboot Post Kernel Update]", :delayed
+    notifies :run, "ruby_block[Reboot Post Kernel Update]", :immediately
   end
 end
 
-execute "Reboot Post Kernel Update" do
-  command "shutdown -r now"
-  action :nothing
+# execute "Reboot Post Kernel Update" do
+  # command "shutdown -r now"
+  # action :nothing
+# end
+
+ruby_block "Reboot Post Kernel Update" do
+	block do
+		node.run_state[:reboot_requested] == true
+	end
+	action :nothing
 end
